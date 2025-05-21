@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title>Hub Kiosk Prototype</title>
+        <!--
+        <link rel="stylesheet" href="kiosk.css">
+        -->
+        <!--
+            body font-size:2em looks good on laptop, but tiny text on our TV
+            4em is still too small on TV.
+            6em is better
+            8em
+        -->
+        <style>
+            body {
+                font-size:8rem;
+                font-family:Arial, sans-serif; 
+                margin:0; padding:0;
+                background:#cccccc;
+            }
+            /* make it more reasonable on a smaller screen, like mine */
+            @media (max-width:2000px) {
+                body {
+                    font-size:2rem;
+                    background:blue;
+                }
+            }
+
+            header {
+                border:1px solid gray; margin:10px; padding:10px; border-radius:10px; 
+                text-align:center; 
+            }
+            h1, h2, h3 { margin:10px; text-align:center; }
+            article { border:none; margin:0; padding:10px; }
+            article:nth-child(odd) { background:#eeffee; }
+            article:nth-child(even) { background:#eeeeff; }
+            ul { margin:10px; border:1px solid lightgray; }
+            li { margin:5px; }
+            div#fixedClock { display:fixed; position:fixed; bottom:0px; background:white; width:100%; text-align:center; }
+            progress { display:fixed; position:fixed; bottom:0px; color:purple; background:none; width:100%; text-align:center; height:5px; }
+            .subtle { font-size:0.8em; color:gray; font-sytle:italic; }
+            .two-col-grid { display:grid; grid-template-columns:1fr 3fr; grid-gap:5px; }
+            .two-col-grid>* { border:1px solid lightgray; }
+            .smaller { font-size:0.9em; }
+            section>ul { margin:0px; }
+            article>img { width:100%; }
+            article { display:flex; flex-direction:column; align-items:center; }
+            .dev { border:1px solid gray; color:gray; background:lightgray; font-size:0.9em; margin:2px; padding:3px 5px; }
+            .dev>* { margin:0; }
+            ul { list-style-type:none; }
+        </style>
+    </head>
+    <body>
+        <div id="fixedClock"></div>
+
+        <article id="welcome">
+            <h2>Welcome to<br>The Bothwell Hub</h2>
+            <p>Operating Hours:
+            <br>Mondays 12:00 - 14:30
+            <br>Tue-Thu 9:00 - 17:00
+            <br>Friday 9:00 - 16:30
+            <br>Saturdays: 9:00 - 12:30
+            <br>Closed Sundays</p>
+            <!--
+            <p>https://thebothwellhub.co.uk/</p>
+            <output id="whatTimeIsIt">TBD</output>
+            -->
+            <!--
+            <div class="dev">
+                <script type="text/javascript">
+                    document.writeln('<p>Screen width: ' + window.screen.width + ', height: ' + window.screen.height + ' pixels, aspect ratio: ' + (window.screen.width / window.screen.height) + '</p>');
+                </script>
+
+            </div>
+            -->
+        </article>
+
+        <!--
+        <article>
+            <img src="whats_on_sign_2.jpeg">
+        </article>
+        -->
+
+        <!--
+        <article>
+            <img src="SMPTE_Color_Bars_16x9.svg.png">
+        </article>
+        -->
+
+        <article>
+            <h2>What's On?</h2>
+            <section class="two-col-grid smaller">
+                <div>Monday</div>
+                <ul>
+                    <li>Community Cafe 12 - 2:30 pm</li>
+                    <li>Prime Dance Scotland</li>
+                </ul>
+
+                <div>Tuesday</div>
+                <ul>
+                    <li>Rhythm Time with Rhonda</li>
+                    <li>Scott Lygate Music</li>
+                    <li>Small Beats (Coming Soon)</li>
+                </ul>
+
+                <div>Wednesday</div>
+                <ul>
+                    <li>Bookbug</li>
+                    <li>Baby &amp; Family Story Time</li>
+                    <li>Bliss Improvers Yoga</li>
+                    <li>My Mindful Mind</li>
+                </ul>
+            </section>
+        </article>
+
+        <article>
+            <h2>What's On?</h2>
+            <section class="two-col-grid smaller">
+                <div>Thursday</div>
+                <ul>
+                    <li>Bliss Chair Yoga for All</li>
+                    <li>Junior Chess Club</li>
+                    <li>Lunabella Yoga &amp; Wellness</li>
+                </ul>
+                <div>Saturday</div>
+                <ul>
+                    <li>Bookbug</li>
+                    <li>Afternoon available for hire</li>
+                </ul>
+                <div>Sunday</div>
+                <ul>
+                    <li>Available for hire</li>
+                </ul>
+            </section>
+        </article>
+
+
+        <article id="library">
+            <h2>Library Hours</h2>
+            <ul>
+                <li>Tuesday: 9:15 - 12:30, 13:30 - 17:00</li>
+                <li>Wednesday: 9:15 - 13:00</li>
+                <li>Thursday: 9:15 - 12:30, 13:30 - 17:00</li>
+                <li>Friday: 9:15 - 13:00</li>
+                <li>Saturday: 9:15 - 12:15</li>
+                <li>Closed Monday &amp; Sunday</li>
+                <li></li>
+            </ul>
+        </article>
+
+        <article>
+            <img src="authors-in-conversation-1.jpeg">
+        </article>
+
+        <article>
+            <img src="authors-in-conversation-2.jpeg">
+        </article>
+
+        <progress id='progress' max="1" value="1"></progress>
+
+        <script>
+            const articles = document.getElementsByTagName('article');
+            const intervalMs = 10000;
+            // const intervalMs = 3000;
+            // const scroll = true; // scroll between articles
+            const scroll = false; // vs. show one article at a time
+            let nextArticleIndex = 0;
+
+            function $(id) { return document.getElementById(id); }
+
+            window.onload = function() {
+                startSlideshow();
+                // console.log('window = ', window);
+            }
+
+            function startSlideshow() {
+                update();
+                updateClock();
+                window.setInterval(update, intervalMs);
+                window.setInterval(updateClock, 1000);
+            }
+
+            function update() {
+                if (nextArticleIndex >= articles.length) {
+                    window.location.reload(true);
+                } else {
+                    console.log('nextArticleIndex = ' + nextArticleIndex + ' of ' + articles.length);
+                    if (scroll) {
+                        articles[nextArticleIndex].scrollIntoView({behavior:'smooth'});
+                    } else {
+                        console.log('hide/unhide (not scrolling)');
+                        for(let j = 0; j < articles.length; j++) {
+                            /*
+                            articles[j].hidden = j !== nextArticleIndex;
+                            */
+                            if (j == nextArticleIndex) {
+                                articles[j].style.display = 'flex';
+                            } else {
+                                articles[j].style.display = 'none';
+                            }
+                            // console.log('articles[' + j + '].hidden = ', articles[j].hidden);
+                        }
+                    }
+                    $('progress').value = 1.0 - nextArticleIndex / articles.length; 
+                    //if (++nextArticleIndex >= articles.length) {
+                     //   // nextArticleIndex = 0;
+                      //  window.location.reload(true);
+                    //}
+                }
+                nextArticleIndex++;
+            }
+
+            const w = window.screen.width;
+            const h = window.screen.height;
+
+            function updateClock() {
+                const now = new Date();
+                let str = now.toLocaleDateString('en-UK') + ' ' + now.toLocaleTimeString('en-UK');
+                if (false) {
+                    str += ' <span class="subtle">screen ' + w + ' x ' + h + ' pix</span>';
+                }
+                if (scroll) {
+                    // $('fixedClock').innerHTML = str;
+                    // $('whatTimeIsIt').innerHTML = str;
+                } else {
+                    // $('fixedClock').innerHTML = str;
+                    // $('whatTimeIsIt').innerHTML = str;
+                }
+            }
+
+        </script>
+
+    </body>
+</html>
+
